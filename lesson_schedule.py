@@ -21,6 +21,7 @@ def update_lesson_schedule(new_schedule):
     save_schedules("class_schedules.json", class_schedules)
 
 
+
 # Функція для відправлення розкладу уроків для певного класу
 def send_lesson_schedule(bot, message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
