@@ -1,5 +1,7 @@
 import json
 from telebot import types, TeleBot
+
+from events import send_events
 from lesson_schedule import send_lesson_schedule, send_day_selection_menu, send_class_schedule, update_lesson_schedule, \
     class_schedules
 from admin import is_admin, send_global_message
@@ -30,12 +32,14 @@ def send_main_menu(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     button1 = types.KeyboardButton("Розклад дзвінків")
     button2 = types.KeyboardButton("Розклад уроків")
+    button4 = types.KeyboardButton("Події")
     if is_admin(message.from_user.id):
         button3 = types.KeyboardButton("Адмін панель")
-    markup.add(button1, button2)
+    markup.add(button1, button2, button4)
     if is_admin(message.from_user.id):
         markup.add(button3)
-    bot.send_message(message.chat.id, text="Виберіть опцію:", reply_markup=markup)
+
+    bot.send_message(message.chat.id, text="Оберіть дію:", reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text in ["1 КЛАС", "2-4 КЛАС", "5-9 КЛАС"])
@@ -133,13 +137,14 @@ def process_global_message(message):
     send_global_message(bot, text)
     bot.send_message(message.chat.id, text="Повідомлення надіслано всім користувачам.")
 
-
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     if message.text == "Розклад дзвінків":
         send_bell_schedule(bot, message)
     elif message.text == "Розклад уроків":
         send_lesson_schedule(bot, message)
+    elif message.text == "Події":
+        send_events(bot, message)
     elif message.text == "Головне меню":
         send_main_menu(message)
     else:
