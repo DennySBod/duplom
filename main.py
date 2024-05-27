@@ -1,12 +1,12 @@
-import json
-from telebot import types, TeleBot
-
+from telebot import types
+from air_raid_alert import send_air
 from events import send_events
 from lesson_schedule import send_lesson_schedule, send_day_selection_menu, send_class_schedule, update_lesson_schedule, \
     class_schedules
 from admin import is_admin, send_global_message
 from bell_schedule import send_bell_schedule_for_class, send_bell_schedule
 from telegram import bot
+
 
 selected_class = ""
 selected_day = ""
@@ -33,9 +33,10 @@ def send_main_menu(message):
     button1 = types.KeyboardButton("Розклад дзвінків")
     button2 = types.KeyboardButton("Розклад уроків")
     button4 = types.KeyboardButton("Події")
+    button5 = types.KeyboardButton("Повітряна тривога")
     if is_admin(message.from_user.id):
         button3 = types.KeyboardButton("Адмін панель")
-    markup.add(button1, button2, button4)
+    markup.add(button1, button2, button4, button5)
     if is_admin(message.from_user.id):
         markup.add(button3)
 
@@ -60,6 +61,18 @@ def handle_day_selection(message):
     global selected_class, selected_day
     selected_day = message.text
     send_class_schedule(bot, message, int(selected_class.split()[0]), selected_day.lower())
+
+@bot.message_handler(func=lambda message: message.text == "Повітряна тривога")
+def handle_air_raid_alert(message):
+    send_air(bot, message)
+
+@bot.message_handler(func=lambda message: message.text == "Карта України")
+def handle_air_raid_map(message):
+    send_air(bot, message)
+
+@bot.message_handler(func=lambda message: message.text == "Алгоритм дій")
+def handle_action_algorithm(message):
+    send_air(bot, message)
 
 @bot.message_handler(func=lambda message: message.text == "Назад")
 def handle_back_button(message):
