@@ -1,12 +1,10 @@
 from telebot import types
 from air_raid_alert import send_air
-from events import send_events
-from lesson_schedule import send_lesson_schedule, send_day_selection_menu, send_class_schedule, update_lesson_schedule, \
-    class_schedules
-from admin import is_admin, send_global_message
+from events import send_events, send_news
+from lesson_schedule import send_lesson_schedule, send_day_selection_menu, send_class_schedule, load_schedules
+from admin import is_admin, send_global_message, send_admin_menu, edit_lesson_schedule, edit_class_schedule, edit_day_schedule, update_lesson
 from bell_schedule import send_bell_schedule_for_class, send_bell_schedule
 from telegram import bot
-
 
 selected_class = ""
 selected_day = ""
@@ -25,7 +23,7 @@ def handle_start(message):
         with open("user_ids.txt", 'a') as file:
             file.write(f"{user_id}\n")
 
-    bot.reply_to(message, "Вітаю! Я твій особистий помічник у всіх шкільних питаннях. Як я можу тобі допомогти сьогодні?")
+    bot.reply_to(message, "*Вітаю!*\nЯ твій особистий помічник у всіх шкільних питаннях. \n\nЯк я можу тобі допомогти сьогодні?", parse_mode='Markdown')
     send_main_menu(message)
 
 def send_main_menu(message):
@@ -40,8 +38,7 @@ def send_main_menu(message):
     if is_admin(message.from_user.id):
         markup.add(button3)
 
-    bot.send_message(message.chat.id, text="Оберіть дію:", reply_markup=markup)
-
+    bot.send_message(message.chat.id, text=f"Вітаємо, *{message.chat.username}* \n\n*Оберіть дію:*", reply_markup=markup, parse_mode='Markdown')
 
 @bot.message_handler(func=lambda message: message.text in ["1 КЛАС", "2-4 КЛАС", "5-9 КЛАС"])
 def handle_class_schedule_request(message):
@@ -49,8 +46,8 @@ def handle_class_schedule_request(message):
     send_bell_schedule_for_class(bot, message, class_number)
 
 @bot.message_handler(
-    func=lambda message: message.text in ["1 Клас", "2 Клас", "3 Клас", "4 Клас", "5 Клас", "6 Клас", "7 Клас",
-                                          "8 Клас", "9 Клас"])
+    func=lambda message: message.text in ["1 клас", "2 клас", "3 клас", "4 клас", "5 клас", "6 клас", "7 клас",
+                                          "8 клас", "9 клас"])
 def handle_class_selection(message):
     global selected_class
     selected_class = message.text
@@ -60,7 +57,7 @@ def handle_class_selection(message):
 def handle_day_selection(message):
     global selected_class, selected_day
     selected_day = message.text
-    send_class_schedule(bot, message, int(selected_class.split()[0]), selected_day.lower())
+    send_class_schedule(bot, message, str(selected_class.split()[0]), selected_day.lower())
 
 @bot.message_handler(func=lambda message: message.text == "Повітряна тривога")
 def handle_air_raid_alert(message):
@@ -80,65 +77,46 @@ def handle_back_button(message):
 
 @bot.message_handler(func=lambda message: message.text == "Адмін панель" and is_admin(message.from_user.id))
 def handle_admin_panel(message):
-    send_admin_menu(message)
+    send_admin_menu(bot, message)
 
-def send_admin_menu(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button1 = types.KeyboardButton("Редагувати розклад уроків")
-    button2 = types.KeyboardButton("Редагувати розклад дзвінків")
-    button3 = types.KeyboardButton("Надіслати повідомлення всім")
-    button4 = types.KeyboardButton("Головне меню")
-    markup.add(button1, button2, button3, button4)
-    bot.send_message(message.chat.id, text="Адмін панель:", reply_markup=markup)
-
-@bot.message_handler(
-    func=lambda message: message.text == "Редагувати розклад уроків" and is_admin(message.from_user.id))
-def handle_edit_lesson_schedule(message):
-    send_lesson_schedule(bot, message)
-
-@bot.message_handler(func=lambda message: message.text in ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця"])
-def handle_day_selection(message):
-    global selected_class, selected_day
-    selected_day = message.text
-    class_number = int(selected_class.split()[0])
-    markup = types.InlineKeyboardMarkup()
-    class_info = next((item for item in class_schedules if item["клас"] == class_number), None)
-    if class_info and selected_day.lower() in class_info["дні"]:
-        schedule = class_info["дні"][selected_day.lower()]
-        for i, subj in enumerate(schedule):
-            button = types.InlineKeyboardButton(text=f"{i + 1}: {subj}", callback_data=f"edit_{i}")
-            markup.add(button)
-        bot.send_message(message.chat.id, text=f"Розклад на {selected_day}:", reply_markup=markup)
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith("edit_"))
-def handle_edit_lesson(call):
-    global selected_lesson_index
-    selected_lesson_index = int(call.data.split("_")[1])
-    bot.send_message(call.message.chat.id, text="Введіть нову назву уроку:")
-
-@bot.message_handler(func=lambda message: selected_lesson_index != -1)
-def handle_new_lesson_name(message):
-    global selected_class, selected_day, selected_lesson_index
-    new_lesson_name = message.text
-    class_number = int(selected_class.split()[0])
-    class_info = next((item for item in class_schedules if item["клас"] == class_number), None)
-    if class_info and selected_day.lower() in class_info["дні"]:
-        class_info["дні"][selected_day.lower()][selected_lesson_index] = new_lesson_name
-        update_lesson_schedule(class_schedules)
-        bot.send_message(message.chat.id, text="Розклад оновлено.")
-    selected_lesson_index = -1
-
-
-@bot.message_handler(
-    func=lambda message: message.text == "Надіслати повідомлення всім" and is_admin(message.from_user.id))
-def handle_send_global_message(message):
-    bot.send_message(message.chat.id, text="Введіть повідомлення для надсилання всім користувачам:")
-    bot.register_next_step_handler(message, process_global_message)
+@bot.callback_query_handler(func=lambda call: call.data == "edit_lesson_schedule" and is_admin(call.from_user.id))
+def handle_edit_lesson_schedule(call):
+    edit_lesson_schedule(bot, call.message)
 
 def process_global_message(message):
     text = message.text
     send_global_message(bot, text)
     bot.send_message(message.chat.id, text="Повідомлення надіслано всім користувачам.")
+
+@bot.callback_query_handler(
+    func=lambda call: call.data == "send_global_message" and is_admin(call.from_user.id))
+def handle_send_global_message(call):
+    bot.send_message(call.message.chat.id, text="Введіть повідомлення для надсилання всім користувачам:")
+    bot.register_next_step_handler(call.message, process_global_message)
+
+@bot.callback_query_handler(func=lambda call: call.data == "send_news")
+def handle_send_news(call):
+    send_news(bot, call.message)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("class_") and is_admin(call.from_user.id))
+def handle_edit_class_schedule(call):
+    class_number = str(call.data.split("_")[1])
+    edit_class_schedule(bot, call.message, class_number)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("day_") and is_admin(call.from_user.id))
+def handle_edit_day_schedule(call):
+    _, class_number, day = call.data.split("_")
+    edit_day_schedule(bot, call.message, str(class_number), day)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("lesson_") and is_admin(call.from_user.id))
+def handle_edit_lesson(call):
+    _, class_number, day, lesson_index = call.data.split("_")
+    bot.send_message(call.message.chat.id, text="Введіть нову назву уроку:")
+    bot.register_next_step_handler(call.message, process_new_lesson_name, str(class_number), day, int(lesson_index))
+
+def process_new_lesson_name(message, class_number, day, lesson_index):
+    new_lesson = message.text
+    update_lesson(bot, message, class_number, day, lesson_index, new_lesson)
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
@@ -155,6 +133,6 @@ def handle_text(message):
         send_main_menu(message)
 
 try:
-    bot.polling(none_stop=True)
+    bot.infinity_polling(none_stop=True)
 except Exception as e:
     print(f"Помилка: {e}")
