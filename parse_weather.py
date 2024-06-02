@@ -30,7 +30,7 @@ def format_weather_message(min_temp, max_temp, current_temp, description):
     return f"*Погода на сьогодні*\n{max_temp}\n{min_temp}\nЗараз на вулиці: {current_temp}\n\n{description}"
 
 def send_weather(bot, message):
-    timezone_str = "Kyiv"
+    timezone_str = "uk_UA"
     today = get_today_date(timezone_str)
     url = weather_url + today
     
