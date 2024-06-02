@@ -1,6 +1,7 @@
 # events.py
 from telebot import types
-from parse_news import fetch_news, parse_news, school_url
+from parse_news import fetch_news, parse_news
+from telegram import school_url
 
 def send_events(bot, message):
     markup = types.InlineKeyboardMarkup()
