@@ -3,7 +3,7 @@ from telebot import types
 from telegram import API_URL
 
 def is_admin(user_id):
-    admin_ids = [937416743, 750610422]  # Замість цих чисел впишіть реальні Telegram ID адмінів
+    admin_ids = [937416743, 750610422, 471644637]  # Замість цих чисел впишіть реальні Telegram ID адмінів
     return user_id in admin_ids
 
 def send_global_message(bot, message_text):

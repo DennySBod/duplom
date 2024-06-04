@@ -1,10 +1,12 @@
 from telebot import types
 from air_raid_alert import send_air
 from events import send_events, send_news
+from parse_weather import send_weather
 from lesson_schedule import send_lesson_schedule, send_day_selection_menu, send_class_schedule, load_schedules
 from admin import is_admin, send_global_message, send_admin_menu, edit_lesson_schedule, edit_class_schedule, edit_day_schedule, update_lesson
 from bell_schedule import send_bell_schedule_for_class, send_bell_schedule
 from telegram import bot
+
 
 selected_class = ""
 selected_day = ""
@@ -32,6 +34,7 @@ def send_main_menu(message):
     button2 = types.KeyboardButton("Розклад уроків")
     button4 = types.KeyboardButton("Події")
     button5 = types.KeyboardButton("Повітряна тривога")
+    button5 = types.KeyboardButton("Погода")
     if is_admin(message.from_user.id):
         button3 = types.KeyboardButton("Адмін панель")
     markup.add(button1, button2, button4, button5)
@@ -74,6 +77,10 @@ def handle_action_algorithm(message):
 @bot.message_handler(func=lambda message: message.text == "Назад")
 def handle_back_button(message):
     send_lesson_schedule(bot, message)
+
+@bot.message_handler(func=lambda message: message.text == "Погода")
+def handle_back_button(message):
+    send_weather(bot, message)
 
 @bot.message_handler(func=lambda message: message.text == "Адмін панель" and is_admin(message.from_user.id))
 def handle_admin_panel(message):

@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from telegram import school_url
+
 
 def fetch_news(url):
     response = requests.get(url)
