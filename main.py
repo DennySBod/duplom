@@ -25,7 +25,10 @@ def handle_start(message):
         with open("user_ids.txt", 'a') as file:
             file.write(f"{user_id}\n")
 
-    bot.reply_to(message, "*Вітаю!*\nЯ твій особистий помічник у всіх шкільних питаннях. \n\nЯк я можу тобі допомогти сьогодні?", parse_mode='Markdown')
+
+
+
+    bot.reply_to(message, "*Вітаю, *{message.chat.username}* *😊\nЯ - чат-бот Гончарівського закладу. 🌟 \nРадий бути твоїм особистим помічником у всіх шкільних питаннях! 📚\nНе соромся запитувати, я завжди тут, щоб тобі допомогти! 💬🏫", parse_mode='Markdown')
     send_main_menu(message)
 
 def send_main_menu(message):
@@ -41,7 +44,7 @@ def send_main_menu(message):
     if is_admin(message.from_user.id):
         markup.add(button3)
 
-    bot.send_message(message.chat.id, text=f"Вітаємо, *{message.chat.username}* \n\n*Оберіть дію:*", reply_markup=markup, parse_mode='Markdown')
+    bot.send_message(message.chat.id, text=f"*Оберіть дію {message.chat.username}*😃", reply_markup=markup, parse_mode='Markdown')
 
 @bot.message_handler(func=lambda message: message.text in ["1 КЛАС", "2-4 КЛАС", "5-9 КЛАС"])
 def handle_class_schedule_request(message):

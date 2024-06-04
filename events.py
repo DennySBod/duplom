@@ -1,4 +1,3 @@
-# events.py
 from telebot import types
 from parse_news import fetch_news, parse_news
 from telegram import school_url
