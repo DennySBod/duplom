@@ -24,9 +24,9 @@ def send_lesson_schedule(bot, message):
     class_schedules = load_schedules()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     class_buttons = [types.KeyboardButton(f"{i['id']} клас") for i in class_schedules]
-    back = types.KeyboardButton("Головне меню")
+    back = types.KeyboardButton("Головне меню 🏠")
     markup.add(*class_buttons, back)
-    bot.send_message(message.chat.id, text="Виберіть клас для розкладу уроків", reply_markup=markup)
+    bot.send_message(message.chat.id, text="Виберіть клас, для якого ви хочете переглянути розклад 📚: ", reply_markup=markup)
 
 # Функція для відправлення розкладу уроків для певного класу та дня тижня
 def send_class_schedule(bot, message, class_number, day):
@@ -42,8 +42,8 @@ def send_day_selection_menu(bot, message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     days = ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця"]
     markup.add(*[types.KeyboardButton(day) for day in days])
-    back = types.KeyboardButton("Назад")
-    main_menu = types.KeyboardButton("Головне меню")
+    back = types.KeyboardButton("Назад 🔄")
+    main_menu = types.KeyboardButton("Головне меню 🏠")
     markup.add(back)
     markup.add(main_menu)
-    bot.send_message(message.chat.id, text="Виберіть день тижня", reply_markup=markup)
+    bot.send_message(message.chat.id, text="Оберіть день тижня для перегляду розкладу 📅: ", reply_markup=markup)

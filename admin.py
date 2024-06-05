@@ -3,7 +3,7 @@ from telebot import types
 from telegram import API_URL
 
 def is_admin(user_id):
-    admin_ids = [937416743, 750610422, 471644637]  # Замість цих чисел впишіть реальні Telegram ID адмінів
+    admin_ids = [937416743, 750610422]
     return user_id in admin_ids
 
 def send_global_message(bot, message_text):
@@ -20,22 +20,22 @@ def load_class_schedules():
     if response.status_code == 200:
         return response.json()
     else:
-        print(f"Помилка завантаження розкладів: {response.status_code}")
+        print(f"Завантаження розкладів не вдалося 🚫: {response.status_code}")
         return []
 
 def save_class_schedules(schedules):
     for schedule in schedules:
         response = requests.put(f"{API_URL}/{schedule['id']}", json=schedule)
         if response.status_code != 200:
-            print(f"Помилка збереження розкладу для класу {schedule['id']}: {response.status_code}")
+            print(f"Не вдалося зберегти розклад для класу {schedule['id']}: {response.status_code}⚠️")
 
 def send_admin_menu(bot, message):
     markup = types.InlineKeyboardMarkup()
-    button1 = types.InlineKeyboardButton("Редагувати розклад уроків", callback_data="edit_lesson_schedule")
-    button2 = types.InlineKeyboardButton("Надіслати повідомлення всім", callback_data="send_global_message")
+    button1 = types.InlineKeyboardButton("Редагування розкладу 📝", callback_data="edit_lesson_schedule")
+    button2 = types.InlineKeyboardButton("Повідомлення для всіх 📩", callback_data="send_global_message")
     markup.add(button1)
     markup.add(button2)
-    bot.send_message(message.chat.id, text="Адмін панель:", reply_markup=markup)
+    bot.send_message(message.chat.id, text="Адмін панель: ", reply_markup=markup)
 
 def edit_lesson_schedule(bot, message):
     schedules = load_class_schedules()
@@ -43,7 +43,7 @@ def edit_lesson_schedule(bot, message):
     for schedule in schedules:
         button = types.InlineKeyboardButton(f"{schedule['id']} клас", callback_data=f"class_{schedule['id']}")
         markup.add(button)
-    bot.send_message(message.chat.id, text="Оберіть клас для редагування:", reply_markup=markup)
+    bot.send_message(message.chat.id, text="Оберіть клас для редагування розкладу 🕰️: ", reply_markup=markup)
 
 def edit_class_schedule(bot, message, class_number):
     schedules = load_class_schedules()
@@ -53,7 +53,7 @@ def edit_class_schedule(bot, message, class_number):
         for day in class_schedule["days"]:
             button = types.InlineKeyboardButton(day.capitalize(), callback_data=f"day_{class_number}_{day}")
             markup.add(button)
-        bot.send_message(message.chat.id, text=f"Оберіть день для класу {class_number}:", reply_markup=markup)
+        bot.send_message(message.chat.id, text=f"Виберіть день тижня для редагування розкладу  {class_number} класу 🗓️:", reply_markup=markup)
 
 def edit_day_schedule(bot, message, class_number, day):
     schedules = load_class_schedules()
@@ -64,7 +64,7 @@ def edit_day_schedule(bot, message, class_number, day):
         for i, lesson in enumerate(day_schedule):
             button = types.InlineKeyboardButton(f"{i + 1}) {lesson}", callback_data=f"lesson_{class_number}_{day}_{i}")
             markup.add(button)
-        bot.send_message(message.chat.id, text=f"Оберіть урок для редагування на {day.capitalize()}:", reply_markup=markup)
+        bot.send_message(message.chat.id, text=f"Виберіть урок для редагування на {day.capitalize()} ⏰:", reply_markup=markup)
 
 def update_lesson(bot, message, class_number, day, lesson_index, new_lesson):
     schedules = load_class_schedules()
@@ -75,6 +75,6 @@ def update_lesson(bot, message, class_number, day, lesson_index, new_lesson):
         else:
             class_schedule["days"][day][lesson_index] = new_lesson
         save_class_schedules(schedules)
-        bot.send_message(message.chat.id, text="Розклад оновлено.")
+        bot.send_message(message.chat.id, text="Розклад оновлено 🎉")
     else:
-        bot.send_message(message.chat.id, text="Помилка при оновленні розкладу.")
+        bot.send_message(message.chat.id, text="Нам шкода, але ми не змогли оновити розклад через помилку 🛑")
