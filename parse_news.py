@@ -15,14 +15,12 @@ def parse_news(html):
     news_items = soup.find_all('div', class_='sch_news_item')
     
     news_list = []
-    
     for item in news_items:
         title_tag = item.find('div', class_='title')
         if title_tag:
             title = title_tag.text.strip()
             link_tag = item.find('a', href=True)
             link = link_tag['href'] if link_tag else 'No link available'
-            
             news_list.append({
                 'title': title,
                 'link': f"https://goncharivkaschool.e-schools.info{link}"

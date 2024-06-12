@@ -4,7 +4,7 @@ from telegram import school_url
 
 def send_events(bot, message):
     markup = types.InlineKeyboardMarkup()
-    # Приклад кнопок для подій
+
     button1 = types.InlineKeyboardButton("Наш сайт школи🖥️", url="https://goncharivkaschool.e-schools.info/m/")
     button2 = types.InlineKeyboardButton("Спільнота у Facebook 👥 ", url="https://www.facebook.com/profile.php?id=100076188379496")
     button3 = types.InlineKeyboardButton("Останні новини 📣", callback_data="send_news")

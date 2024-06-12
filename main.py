@@ -34,7 +34,7 @@ def send_main_menu(message):
     button4 = types.KeyboardButton("Події 🎉")
     button5 = types.KeyboardButton("Погода ☀️")
     if is_admin(message.from_user.id):
-        button3 = types.KeyboardButton("Адмін панель 👤")
+        button3 = types.KeyboardButton("Адмін-панель 👤")
     markup.add(button1, button2, button4, button5)
     if is_admin(message.from_user.id):
         markup.add(button3)
@@ -68,7 +68,7 @@ def handle_back_button(message):
 def handle_back_button(message):
     send_weather(bot, message)
 
-@bot.message_handler(func=lambda message: message.text == "Адмін панель 👤" and is_admin(message.from_user.id))
+@bot.message_handler(func=lambda message: message.text == "Адмін-панель 👤" and is_admin(message.from_user.id))
 def handle_admin_panel(message):
     send_admin_menu(bot, message)
 

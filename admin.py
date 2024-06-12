@@ -35,7 +35,7 @@ def send_admin_menu(bot, message):
     button2 = types.InlineKeyboardButton("Повідомлення для всіх 📩", callback_data="send_global_message")
     markup.add(button1)
     markup.add(button2)
-    bot.send_message(message.chat.id, text="Адмін панель: ", reply_markup=markup)
+    bot.send_message(message.chat.id, text="Адмін-панель: ", reply_markup=markup)
 
 def edit_lesson_schedule(bot, message):
     schedules = load_class_schedules()
